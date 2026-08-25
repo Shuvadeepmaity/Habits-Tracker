@@ -4,7 +4,51 @@ function iso(d){return d.toISOString().slice(0,10)}
 function initDates(){const today=new Date(); $("end").value=iso(today); const past=new Date(today); past.setDate(today.getDate()-30); $("start").value=iso(past); $("dailyDate").value=iso(today)}
 async function api(url,opts){const r=await fetch(url,opts); if(!r.ok) throw new Error(await r.text()); return r.json()}
 function destroy(id){if(charts[id]) charts[id].destroy()}
-function chart(id,type,labels,data){destroy(id); charts[id]=new Chart($(id),{type,data:{labels,datasets:[{data, borderWidth:2, tension:.35, fill:type==='line', pointRadius:3}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#777'},grid:{color:'#191919'}},y:{ticks:{color:'#777'},grid:{color:'#191919'},beginAtZero:true,max:100}}}})}
+function chart(id,type,labels,data){
+  destroy(id);
+  const canvas=$(id);
+  const gradientPlugin={
+    id:'habitGradient',
+    beforeDatasetsDraw(chart){
+      const area=chart.chartArea;
+      if(!area) return;
+      const ctx=chart.ctx;
+      const grad=ctx.createLinearGradient(0,area.bottom,0,area.top);
+      grad.addColorStop(0,'rgba(255,48,48,.30)');
+      grad.addColorStop(.45,'rgba(255,212,59,.45)');
+      grad.addColorStop(1,'rgba(255,239,128,.85)');
+      const lineGrad=ctx.createLinearGradient(area.left,0,area.right,0);
+      lineGrad.addColorStop(0,'#ff3030');
+      lineGrad.addColorStop(.5,'#ffd43b');
+      lineGrad.addColorStop(1,'#fff09a');
+      chart.data.datasets.forEach(ds=>{
+        ds.backgroundColor=type==='line' ? grad : lineGrad;
+        ds.borderColor=lineGrad;
+        ds.pointBackgroundColor='#ffd43b';
+        ds.pointBorderColor='#0b0b0b';
+        ds.pointHoverBackgroundColor='#fff09a';
+        ds.pointHoverBorderColor='#ff3030';
+      });
+    }
+  };
+  charts[id]=new Chart(canvas,{type,data:{labels,datasets:[{
+    data,
+    borderWidth:2.5,
+    tension:.38,
+    fill:type==='line',
+    pointRadius:type==='line'?3:0,
+    pointHoverRadius:type==='line'?6:0,
+    borderRadius:type==='bar'?6:0
+  }]},plugins:[gradientPlugin],options:{
+    responsive:true,
+    animation:{duration:900,easing:'easeOutQuart'},
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{ticks:{color:'#9b9b9b'},grid:{color:'rgba(255,212,59,.07)'}},
+      y:{ticks:{color:'#9b9b9b'},grid:{color:'rgba(255,212,59,.07)'},beginAtZero:true,max:100}
+    }
+  }})
+}
 async function refresh(){
  const q=`?start=${$("start").value}&end=${$("end").value}`;
  const s=await api('/api/stats'+q);
@@ -31,7 +75,7 @@ async function renderMonthly(s){
 async function loadDailyForm(){
  const d=$("dailyDate").value; const data=await api('/api/daily?start='+d+'&end='+d); currentRows=data.rows; habitColumns=data.habit_columns;
  const row=currentRows[0]||{}; $("notes").value=row["Notes"]||"";
- $("habitForm").innerHTML=habitColumns.map((h,i)=>{const v=row[h]||'';return `<div class="habit"><label>${h}</label><div class="choices"><button class="${v==='✓'?'on y':''}" onclick="pick(this,'${esc(h)}','✓')">✓</button><button class="${v==='✗'?'on n':''}" onclick="pick(this,'${esc(h)}','✗')">✗</button></div></div>`}).join('');
+ $("habitForm").innerHTML=habitColumns.map((h,i)=>{const v=row[h]||'';return `<div class="habit"><label>${h}</label><div class="choices" data-value="${v}" data-h="${h}"><button class="${v==='✓'?'on y':''}" onclick="pick(this,'${esc(h)}','✓')">✓</button><button class="${v==='✗'?'on n':''}" onclick="pick(this,'${esc(h)}','✗')">✗</button></div></div>`}).join('');
  updateScore();
 }
 function esc(x){return x.replaceAll("'","\\'")}
@@ -40,7 +84,7 @@ function updateScore(){const all=[...document.querySelectorAll('.choices')]; con
 async function saveDaily(){
  const values={};document.querySelectorAll('.choices').forEach(x=>{if(x.dataset.value)values[x.dataset.h]=x.dataset.value});
  const r=await api('/api/daily',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date:$("dailyDate").value,values,notes:$("notes").value})});
- $("dailyScore").textContent=r.score.toFixed(1)+'%'; await refresh(); alert('Saved safely to Excel. A backup was created before the update.');
+ $("dailyScore").textContent=r.score.toFixed(1)+'%'; await refresh(); alert('Saved successfully. Your progress is stored for future days.');
 }
 function openClear(){$("clearModal").classList.add('show')}function closeClear(){$("clearModal").classList.remove('show')}
 async function clearRange(){await api('/api/clear',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({start:$("start").value,end:$("end").value,scope:'daily'})});closeClear();await refresh();await loadDailyForm();alert('Range cleared. A backup workbook was created.')}

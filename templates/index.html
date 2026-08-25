@@ -10,7 +10,7 @@
 <body>
 <div class="bg-orb orb1"></div><div class="bg-orb orb2"></div>
 <header class="topbar">
-  <div class="brand"><span class="logo">H</span><div><b>HABITFORGE</b><small>GOAL × CONSISTENCY</small></div></div>
+  <div class="brand"><span class="logo">H</span><div><b>HABIT-TRACKER</b><small>GOAL × CONSISTENCY</small></div></div>
   <div class="range">
     <input id="start" type="date"><span>→</span><input id="end" type="date"><button onclick="refresh()">APPLY</button>
   </div>
@@ -25,7 +25,7 @@
   </nav>
 
   <section id="progress" class="page active">
-    <div class="hero"><div><div class="eyebrow">YOUR CONSISTENCY ENGINE</div><h1>Build the streak.<br><span>Become the goal.</span></h1><p>One clean day at a time. Your Excel workbook remains the source of truth.</p></div>
+    <div class="hero"><div><div class="eyebrow">YOUR CONSISTENCY ENGINE</div><h1>Build the streak.<br><span>Become the goal.</span></h1><p>One clean day at a time. Your saved tracker data stays available between sessions.</p></div>
       <div class="ring"><div><strong id="avg">0%</strong><small>AVG SCORE</small></div></div>
     </div>
     <div class="cards">
@@ -37,12 +37,12 @@
     <div class="grid2"><div class="panel"><div class="panelhead"><h3>Daily momentum</h3><span>score %</span></div><canvas id="dailyChart"></canvas></div>
       <div class="panel"><div class="panelhead"><h3>Habit consistency</h3><span>completion %</span></div><canvas id="habitChart"></canvas></div></div>
     <div class="grid2"><div class="panel"><div class="panelhead"><h3>Weekly pulse</h3><span>average score %</span></div><canvas id="weeklyChart"></canvas></div>
-      <div class="chat panel"><div class="panelhead"><h3>Forge AI</h3><span>tracker assistant</span></div><div id="chatlog" class="chatlog"><div class="bubble bot">Hey! Ask me about your average, best day, weakest habit, or a quick summary.</div></div><div class="chatbox"><input id="chatinput" placeholder="Ask about your progress…"><button onclick="sendChat()">➤</button></div></div></div>
+      <div class="chat panel"><div class="panelhead"><h3>Habit Assistant</h3><span>tracker assistant</span></div><div id="chatlog" class="chatlog"><div class="bubble bot">Hey! Ask me about your average, best day, weakest habit, or a quick summary.</div></div><div class="chatbox"><input id="chatinput" placeholder="Ask about your progress…"><button onclick="sendChat()">➤</button></div></div></div>
   </section>
 
   <section id="daily" class="page">
     <div class="sectionhead"><div><div class="eyebrow">DAILY CHECK-IN</div><h2>Show up today.</h2></div><button class="danger" onclick="openClear()">CLEAR RANGE</button></div>
-    <div class="panel"><div class="dailytoolbar"><input id="dailyDate" type="date"><button onclick="loadDailyForm()">LOAD DATE</button><span id="dailyScore" class="scorepill">0%</span></div><div id="habitForm" class="habitgrid"></div><textarea id="notes" placeholder="Reflection / notes…"></textarea><button class="save" onclick="saveDaily()">SAVE TO EXCEL</button></div>
+    <div class="panel"><div class="dailytoolbar"><input id="dailyDate" type="date"><button onclick="loadDailyForm()">LOAD DATE</button><span id="dailyScore" class="scorepill">0%</span></div><div id="habitForm" class="habitgrid"></div><textarea id="notes" placeholder="Reflection / notes…"></textarea><button class="save" onclick="saveDaily()">SAVE CHECK-IN</button></div>
   </section>
 
   <section id="weekly" class="page"><div class="sectionhead"><div><div class="eyebrow">WEEKLY REVIEW</div><h2>Zoom out. Improve.</h2></div></div><div class="panel"><canvas id="weeklyBig"></canvas></div><div id="weeklyTable" class="panel tablewrap"></div></section>
